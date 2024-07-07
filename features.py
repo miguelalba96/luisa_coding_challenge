@@ -7,6 +7,7 @@ import pandas as pd
 
 from sklearn.impute import KNNImputer
 from sklearn.feature_selection import RFE
+from sklearn.tree import DecisionTreeClassifier
 
 
 CATEGORICAL_COLUMNS = [
@@ -187,4 +188,21 @@ def get_minus_one_imputed_data(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy().fillna(-1)
     return df
 
+
+def apply_recursive_feature_elimination(
+        df: pd.DataFrame, target: str, num_features: int = 20
+) -> pd.DataFrame:
+    """
+    Apply Recursive Feature Elimination to select the most important features
+    :param df: features
+    :param target: target variable
+    :param num_features: number of features to select
+    """
+    # select all numerical columns
+    numerical_columns = list(df.select_dtypes(include=[np.number]).columns)
+    numerical_columns = [col for col in numerical_columns if col != target]
+    rfe = RFE(estimator=DecisionTreeClassifier(), n_features_to_select=num_features)
+    rfe.fit(df[numerical_columns], df[target])
+    selected_columns = df[numerical_columns].columns[rfe.support_]
+    return df[selected_columns]
 
