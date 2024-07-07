@@ -181,6 +181,18 @@ def get_imputed_dataframe(df: pd.DataFrame, num_neighbors: int=5) -> pd.DataFram
     return df
 
 
+def normalize_data(df: pd.DataFrame):
+    """
+    Normalize data between 0 and 1, skipping categorical features
+    """
+    for col in df.columns:
+        if col in CATEGORICAL_COLUMNS:
+            continue
+
+        df[col] = (df[col] - df[col].min()) / (df[col].max() - df[col].min())
+    return df
+
+
 def get_minus_one_imputed_data(df: pd.DataFrame) -> pd.DataFrame:
     """
     Replace all -1 values with NaN
